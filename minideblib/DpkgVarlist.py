@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # DpkgVarlist.py
 #
 # This module implements DpkgVarlist, a class which contains
@@ -23,29 +24,31 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-import re, string
-import DpkgDatalist
+import re
+import string
+from DpkgDatalist import DpkgDatalist, DpkgDatalistException
 
-class DpkgVarlist(DpkgDatalist.DpkgDatalist):
-	def load(self, fn):
-		"Load variable data from a file."
 
-		vf=open(fn, "r")
-		matcher=re.compile("^([^=]+)=\s*(.*)\s*$")
-		lineno=1
-		for line in vf.readlines():
-			mo=matcher.search(line)
-			if not mo:
-				raise DpkgDatalist.DpkgDatalistException("Syntax error in varlistfile", DpkgVarlistException.SYNTAXERROR, fn, lineno)
+class DpkgVarlist(DpkgDatalist):
 
-			self.data[mo.group(1)]=string.strip(mo.group(2))
-			lineno=lineno+1
+    def load(self, fn):
+        "Load variable data from a file."
 
-		vf.close()
+        vf = open(fn, "r")
+        matcher = re.compile("^([^=]+)=\s*(.*)\s*$")
+        lineno = 1
+        for line in vf.readlines():
+            mo = matcher.search(line)
+            if not mo:
+                raise DpkgDatalistException("Syntax error in varlistfile",
+                                            DpkgDatalistException.SYNTAXERROR,
+                                            fn, lineno)
+            self.data[mo.group(1)] = string.strip(mo.group(2))
+            lineno += 1
+        vf.close()
 
-	def _store(self, fo):
-		"Write our variable data to a file object"
+    def _store(self, fo):
+        "Write our variable data to a file object"
 
-		for key in self.data.keys():
-			fo.write("%s=%s\n" % (key, self.data[key]))
-
+        for key in self.data.keys():
+            fo.write("%s=%s\n" % (key, self.data[key]))

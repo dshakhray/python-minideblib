@@ -27,7 +27,7 @@
 # $Id$
 
 __revision__ = "r"+"$Revision$"[11:-2]
-__all__ = [ 'DpkgDebPackage', 'DpkgDebPackageException' ]
+__all__ = ['DpkgDebPackage', 'DpkgDebPackageException']
 
 import os
 import re
@@ -42,13 +42,16 @@ from minideblib.DpkgControl import DpkgParagraph
 from minideblib.DpkgVersion import DpkgVersion
 from minideblib.LoggableObject import LoggableObject
 
+
 class DpkgDebPackageException(Exception):
     """General exception which could be raised by DpkgDebPackage"""
     def __init__(self, msg):
         Exception.__init__(self)
         self.msg = msg
+
     def __str__(self):
         return self.msg
+
     def __repr__(self):
         return self.msg
 
@@ -72,8 +75,7 @@ class DpkgDebPackage(LoggableObject):
                 raise DpkgDebPackageException("Unable to locate file: %s" % self.path)
             self.load_control()
 
-
-    def load(self, path = None, getfiles=True, getchanges='both'):
+    def load(self, path=None, getfiles=True, getchanges='both'):
         """ Loads .deb file for processing """
         path_changed = False
         if not path and not self.path:
@@ -97,7 +99,7 @@ class DpkgDebPackage(LoggableObject):
         if self.path and os.path.isfile(self.path):
             self.__raw_files = self.__list_contents()
             if self.__raw_files:
-                self.files = [ fname[5] for fname in self.__raw_files ]
+                self.files = [fname[5] for fname in self.__raw_files]
         else: 
             raise DpkgDebPackageException("Unable to locate file: %s" % self.path)
 
@@ -114,14 +116,14 @@ class DpkgDebPackage(LoggableObject):
         """ Reads control information into memory """
         if self.path and os.path.isfile(self.path):
             tempdir = self.__extract_control()
-            fhdl = open(os.path.join(tempdir,"control"),"r")
+            fhdl = open(os.path.join(tempdir, "control"), "r")
             self.control = DpkgParagraph()
             self.control.load(fhdl)
             fhdl.close()
             if not self.__parse_md5sums(tempdir):
                 self._logger.warning("Can't parse md5sums")
             else:
-                self.__md5files = [ xsum[1] for xsum in self.md5sums ]
+                self.__md5files = [xsum[1] for xsum in self.md5sums]
             shutil.rmtree(tempdir, True)
         else:
             raise DpkgDebPackageException("Unable to locate file: %s" % self.path)
@@ -131,7 +133,7 @@ class DpkgDebPackage(LoggableObject):
         If since_version is specified, only return entries later than the specified version.
         returns a sequence of Changes objects.'''
 
-        def changelog_variations(filename):
+        def changelog_variations(fname):
             """Return list of all possible changelog/news locations"""
             formats = ['usr/doc/*/%s.gz',
                        'usr/share/doc/*/%s.gz',
@@ -141,7 +143,7 @@ class DpkgDebPackage(LoggableObject):
                        './usr/share/doc/*/%s.gz',
                        './usr/doc/*/%s',
                        './usr/share/doc/*/%s']
-            return [ format % filename for format in formats ]
+            return [fmt % fname for fmt in formats]
         
         news_filenames = changelog_variations('NEWS.Debian')
         changelog_filenames = changelog_variations('changelog.Debian')
@@ -159,7 +161,7 @@ class DpkgDebPackage(LoggableObject):
         news = None
         for filename in news_filenames:
             news = self.__read_changelog(os.path.join(tempdir, filename),
-                                       since_version)
+                                         since_version)
             if news:
                 break
 
@@ -167,7 +169,7 @@ class DpkgDebPackage(LoggableObject):
         for batch in (changelog_filenames, changelog_filenames_native):
             for filename in batch:
                 changelog = self.__read_changelog(os.path.join(tempdir, filename),
-                                                since_version)
+                                                  since_version)
                 if changelog:
                     break
             if changelog:
@@ -202,7 +204,7 @@ class DpkgDebPackage(LoggableObject):
         extract_command = 'ar p %s data.tar.gz |tar zxf - -C %s %s 2>/dev/null' % (
             self.path,
             tempdir,
-            ' '.join( [ "'%s'" % filen for filen in filenames ] )
+            ' '.join(["'%s'" % filen for filen in filenames])
             )
 
         # tar exits unsuccessfully if _any_ of the files we wanted
@@ -213,19 +215,19 @@ class DpkgDebPackage(LoggableObject):
     
     def __parse_md5sums(self, tempdir):
         """Parses md5sums file from extracted control section of debian package"""
-        path = os.path.join(tempdir,"md5sums")
+        path = os.path.join(tempdir, "md5sums")
         if not os.access(path, os.R_OK):
             print "Can't open file %s" % path
             return False
         self.md5sums = []
-        fhdl = open(path,"r")
+        fhdl = open(path, "r")
         for line in fhdl.readlines():
             if line[33] != " ":
                 print "33 is not a space.\n %s" % line
                 # Something bad happend, unknown file format.
                 fhdl.close()
                 return False
-            argl = [ line[:32].strip(), line[34:].strip() ]
+            argl = [line[:32].strip(), line[34:].strip()]
             self.md5sums.append(argl)
         fhdl.close()
         return True
@@ -235,7 +237,7 @@ class DpkgDebPackage(LoggableObject):
         (status, output) = commands.getstatusoutput("ar p %s data.tar.gz | tar ztvf -" % self.path)
         if status != 0:
             return []
-        files = [ line.split() for line in output.splitlines() ]
+        files = [line.split() for line in output.splitlines()]
         return files
 
     def __read_changelog(self, filename, since_version):

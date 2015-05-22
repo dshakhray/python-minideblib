@@ -22,23 +22,30 @@
 # Copyright (c) 2005,2006 Alexandr D. Kanevskiy <packages@bifh.org>
 #               Rewrite to use python library calls instead of fork/exec
 
-import os, string, commands
+import os
+import string
+import commands
+
 
 class GPGSigVerifierException(Exception):
     def __init__(self, value):
         self._value = value
+
     def __str__(self):
-        return `self._value`
+        return str(self._value)
+
 
 class GPGSigVerificationFailure(Exception):
     def __init__(self, value, output):
         self._value = value
         self._output = output
-    def __str__(self):
-        return `self._value`
 
-    def getOutput(self):
+    def __str__(self):
+        return str(self._value)
+
+    def get_output(self):
         return self._output
+
 
 class GPGSigVerifier:
     def __init__(self, keyrings, gpgv=None):
@@ -58,7 +65,7 @@ class GPGSigVerifier:
         if sigfilename:
             args.append(sigfilename)
         args = [self._gpgv] + args + [filename]
-
+        msg = ""
         (status, output) = commands.getstatusoutput(string.join(args))
         if not (status is None or (os.WIFEXITED(status) and os.WEXITSTATUS(status) == 0)):
             if os.WIFEXITED(status):
@@ -69,4 +76,3 @@ class GPGSigVerifier:
                 msg = "gpgv died with signal %d" % (os.WTERMSIG(status),)
             raise GPGSigVerificationFailure(msg, output)
         return output.splitlines()
- 

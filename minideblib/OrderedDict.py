@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # OrderedDict.py
 #
 # This class functions almost exactly like UserDict.  However, when using
@@ -22,36 +23,37 @@
 
 from UserDict import UserDict
 
+
 class OrderedDict(UserDict):
-    __order=[]
+    __order = []
 
-    def __init__(self, dict=None):
+    def __init__(self, dictionary=None):
         UserDict.__init__(self)
-        self.__order=[]
-        if dict is not None and dict.__class__ is not None:
-            self.update(dict)
+        self.__order = []
+        if dictionary is not None and dictionary.__class__ is not None:
+            self.update(dictionary)
 
-    def __cmp__(self, dict):
-        if isinstance(dict, OrderedDict):
-            ret=cmp(self.__order, dict.__order)
+    def __cmp__(self, dictionary):
+        if isinstance(dictionary, OrderedDict):
+            ret = cmp(self.__order, dictionary.__order)
             if not ret:
-                ret=UserDict.__cmp__(self, dict)
+                ret = UserDict.__cmp__(self, dictionary)
             return ret
         else:
-            return UserDict.__cmp__(self, dict)
+            return UserDict.__cmp__(self, dictionary)
 
     def __setitem__(self, key, value):
-        if not self.has_key(key):
+        if key not in self:
             self.__order.append(key)
         UserDict.__setitem__(self, key, value)
 
     def __delitem__(self, key):
-        if self.has_key(key):
+        if key in self:
             del self.__order[self.__order.index(key)]
         UserDict.__delitem__(self, key)
 
     def clear(self):
-        self.__order=[]
+        self.__order = []
         UserDict.clear(self)
 
     def copy(self):
@@ -69,8 +71,8 @@ class OrderedDict(UserDict):
     def values(self):
         return map(lambda x, self=self: self.__getitem__(x), self.__order)
 
-    def update(self, dict):
-        for k, v in dict.items():
+    def update(self, dictionary):
+        for k, v in dictionary.items():
             self.__setitem__(k, v)
 
 # vim:ts=4:sw=4:et:

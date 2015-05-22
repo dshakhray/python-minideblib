@@ -27,9 +27,10 @@
 # $Id$
 
 __revision__ = "r"+"$Revision$"[11:-2]
-__all__ = [ 'LoggableObject' ]
+__all__ = ['LoggableObject']
 
 import logging
+
 
 class LazyInit(object):
     def __init__(self, calculate_function):
@@ -58,4 +59,3 @@ class LoggableObject:
             logging.basicConfig()
         return logger
     _logger = LazyInit(_logger)
-

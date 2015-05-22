@@ -34,44 +34,50 @@ __all__ = ['DpkgChangelog', 'DpkgChangelogEntry', 'DpkgChangelogException']
 
 
 class DpkgChangelogException(Exception):
-    def __init__(self, msg, lineno = 0):
+    def __init__(self, msg, lineno=0):
         Exception.__init__(self)
         self.msg = msg
         self.lineno = lineno
+
     def __str__(self):
         return self.msg + (self.lineno and " at line %d" % self.lineno or "")
+
     def __repr__(self):
         return self.msg + (self.lineno and " at line %d" % self.lineno or "")
 
 # Fixed settings, do not change these unless you really know what you are doing
-PackageRegex    = "[a-z0-9][a-z0-9.+-]+"        # Regular expression package names must comply with
-VersionRegex    = "(?:[0-9]+:)?[a-zA-Z0-9~.+-]+" # Regular expression package versions must comply with
+PackageRegex = "[a-z0-9][a-z0-9.+-]+"        # Regular expression package names must comply with
+VersionRegex = "(?:[0-9]+:)?[a-zA-Z0-9~.+-]+"  # Regular expression package versions must comply with
 
 # Regular expressions for various bits of the syntax used
-ClosesRegex     = "closes:\s*(?:bug)?#?\s?\d+(?:,\s?(?:bug)?#?\s?\d+)*"
-BugRegex        = "(\d+)"
+ClosesRegex = "closes:\s*(?:bug)?#?\s?\d+(?:,\s?(?:bug)?#?\s?\d+)*"
+BugRegex = "(\d+)"
 
 # Precompile the regular expressions
-ClosesMatcher    = re.compile(ClosesRegex, re.IGNORECASE)
-BugMatcher       = re.compile(BugRegex)
+ClosesMatcher = re.compile(ClosesRegex, re.IGNORECASE)
+BugMatcher = re.compile(BugRegex)
 
 # Changelog regexps
-StartRegex      = "(?P<package>%s) \((?P<version>%s)\) (?P<distribution>[\w-]+(?:\s+[\w-]+)*); (?P<attrs>.*)" % (PackageRegex, VersionRegex)
-EndRegex        = " -- (?P<changedby>.+? <.+?>)  (?P<date>.*)"
-AttrRegex       = "(?P<key>.+?)=(?P<value>.*)"
+StartRegex = "(?P<package>%s) \((?P<version>%s)\) " \
+             "(?P<distribution>[\w-]+(?:\s+[\w-]+)*); " \
+             "(?P<attrs>.*)" % (PackageRegex, VersionRegex)
+EndRegex = " -- (?P<changedby>.+? <.+?>)  (?P<date>.*)"
+AttrRegex = "(?P<key>.+?)=(?P<value>.*)"
 
 # Precompile the regular expressions
-StartMatcher    = re.compile(StartRegex)
-EndMatcher      = re.compile(EndRegex)
-AttrMatcher     = re.compile(AttrRegex)
+StartMatcher = re.compile(StartRegex)
+EndMatcher = re.compile(EndRegex)
+AttrMatcher = re.compile(AttrRegex)
 
 
 class DpkgChangelogEntry:
-    '''Simple class to represent a single changelog entry. The list of
+    '''
+    Simple class to represent a single changelog entry. The list of
     attributes in the entry header is stored in the attributes map. The
     timestamp associated with the changes are stored in time.mktime()
     comptabile tuple format in the
-    date member.'''
+    date member.
+    '''
 
     def __init__(self):
         self.package = ""
@@ -85,8 +91,7 @@ class DpkgChangelogEntry:
         self.entries = []
         self.extra_keywords = {}
 
-
-    def add_entry(self, entry, extra_keywords = ()):
+    def add_entry(self, entry, extra_keywords=()):
         '''Utility function to add a changelog entry. Also takes care
         of extracting the bugs closed by this change and adding them to
         the self.bugsfixed array.'''
@@ -119,7 +124,8 @@ class DpkgChangelog:
        E.g. for standard Debian 'Closes:" extra_keywords would be someting like:
        [ ( "bugsfixed", "closes:\s*(?:bug)?#?\s?\d+(?:,\s?(?:bug)?#?\s?\d+)*", "(\d+)" ) ]
     '''
-    def __init__(self, extra_keywords = () ):
+
+    def __init__(self, extra_keywords=()):
         self.entries = []
         self.lineno = 0
         self.package = None
@@ -142,11 +148,10 @@ class DpkgChangelog:
                 itemre = row[2]
             else:
                 raise DpkgChangelogException("Invalid item regex for extra keyword %s" % row[0])
-            self._extra_keywords.append( (row[0], kwre, itemre) )
- 
+            self._extra_keywords.append((row[0], kwre, itemre))
 
     def __get_next_nonempty_line(self, infile):
-        "Return the next line that is not empty"
+        # Return the next line that is not empty
         self.lineno += 1
         line = infile.readline()
         while not line.strip():
@@ -158,7 +163,6 @@ class DpkgChangelog:
             return line[:-1]
         else:
             return line
-
 
     def _parse_one_entry(self, infile):
 
@@ -184,7 +188,7 @@ class DpkgChangelog:
             entry.attributes[am.group("key")] = am.group("value")
 
         # Check for essential urgency attribute
-        if not entry.attributes.has_key("urgency"):
+        if "urgency" not in entry.attributes:
             raise DpkgChangelogException("Missing urgency attribute", self.lineno)
 
         # Read the changelog entries themselves
@@ -220,10 +224,11 @@ class DpkgChangelog:
         # Return the parsed changelog entry
         return entry
 
-
-    def parse_changelog(self, changelog, since_ver = None):
-        '''Parses changelog argument (could be file or string)
-        and represents it's content as array of DpkgChangelogEntry'''
+    def parse_changelog(self, changelog, since_ver=None):
+        '''
+        Parses changelog argument (could be file or string)
+        and represents it's content as array of DpkgChangelogEntry
+        '''
         if isinstance(changelog, basestring):
             import StringIO
             fh = StringIO.StringIO(changelog)
@@ -233,6 +238,7 @@ class DpkgChangelog:
             raise DpkgChangelogException("Invalid argument type")
 
         pkg_name = None
+        last_err = None
 
         while True:
             try:

@@ -25,13 +25,15 @@
 import os
 from minideblib.GPGSigVerifier import GPGSigVerifier
 
+
 class DebianSigVerifier(GPGSigVerifier):
     _dpkg_ring = '/etc/dpkg/local-keyring.gpg'
+
     def __init__(self, keyrings=None, extra_keyrings=None):
         if keyrings is None:
             keyrings = ['/usr/share/keyrings/debian-keyring.gpg', '/usr/share/keyrings/debian-keyring.pgp']
         if os.access(self._dpkg_ring, os.R_OK):
             keyrings.append(self._dpkg_ring)
-        if not extra_keyrings is None:
+        if not extra_keyrings:
             keyrings += extra_keyrings
         GPGSigVerifier.__init__(self, keyrings)

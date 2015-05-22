@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # SafeWriteFile.py
 #
 # This file is a writable file object.  It writes to a specified newname,
@@ -25,6 +26,8 @@ from types import StringType
 from shutil import copy2
 from string import find
 from os import rename
+import time
+
 
 class ObjectNotAllowed(Exception):
     pass
@@ -37,19 +40,19 @@ class InvalidMode(Exception):
 class SafeWriteFile:
     def __init__(self, newname, realname, mode="w", bufsize=-1):
 
-        if type(newname)!=StringType:
+        if type(newname) != StringType:
             raise ObjectNotAllowed(newname)
-        if type(realname)!=StringType:
+        if type(realname) != StringType:
             raise ObjectNotAllowed(realname)
 
-        if find(mode, "r")>=0:
+        if find(mode, "r") >= 0:
             raise InvalidMode(mode)
-        if find(mode, "a")>=0 or find(mode, "+") >= 0:
+        if find(mode, "a") >= 0 or find(mode, "+") >= 0:
             copy2(realname, newname)
-        self.fobj=open(newname, mode, bufsize)
-        self.newname=newname
-        self.realname=realname
-        self.__abort=0
+        self.fobj = open(newname, mode, bufsize)
+        self.newname = newname
+        self.realname = realname
+        self.__abort = 0
 
     def close(self):
         self.fobj.close()
@@ -57,7 +60,7 @@ class SafeWriteFile:
             rename(self.newname, self.realname)
 
     def abort(self):
-        self.__abort=1
+        self.__abort = 1
 
     def __del__(self):
         self.abort()
@@ -71,8 +74,7 @@ class SafeWriteFile:
 
 
 if __name__ == "__main__":
-    import time
-    f=SafeWriteFile("sf.new", "sf.data")
+    f = SafeWriteFile("sf.new", "sf.data")
     f.write("test\n")
     f.flush()
     time.sleep(1)

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # DpkgDatalist.py
 #
 # This module implements DpkgDatalist, an abstract class for storing 
@@ -20,50 +21,47 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-import os, sys
 from UserDict import UserDict
 from OrderedDict import OrderedDict
-import SafeWriteFile
-from types import StringType
+from SafeWriteFile import SafeWriteFile
+
 
 class DpkgDatalistException(Exception):
-    UNKNOWN     = 0
+    UNKNOWN = 0
     SYNTAXERROR = 1
 
-    def __init__(self, message="", reason=UNKNOWN, file=None, line=None):
-        self.message=message
-        self.reason=reason
-        self.filename=file
-        self.line=line
+    def __init__(self, message="", reason=UNKNOWN, fl=None, line=None):
+        self.message = message
+        self.reason = reason
+        self.filename = fl
+        self.line = line
+
 
 class _DpkgDatalist:
     def __init__(self, fn=""):
         '''Initialize a DpkgDatalist object. An optional argument is a
         file from which we load values.'''
 
-        self.filename=fn
+        self.filename = fn
         if self.filename:
             self.load(self.filename)
+
+    def load(self, fn):
+        raise NotImplementedError()
 
     def store(self, fn=None):
         "Store variable data in a file."
 
-        if fn==None:
-            fn=self.filename
-        # Special case for writing to stdout
-        if not fn:
-            self._store(sys.stdout)
-            return
-
-        # Write to a temporary file first
-        if type(fn) == StringType:
-            vf=SafeWriteFile(fn+".new", fn, "w")
+        if type(fn) == str:
+            # Write to a temporary file first
+            vf = SafeWriteFile(fn+".new", fn, "w")
         else:
-            vf=fn
+            # use filename as a file handle
+            vf = fn
         try:
             self._store(vf)
         finally:
-            if type(fn) == StringType:
+            if type(fn) == str:
                 vf.close()
 
 
