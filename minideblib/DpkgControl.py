@@ -154,7 +154,7 @@ class DpkgControl(DpkgOrderedDatalist):
 
     def load(self, f):
         while 1:
-            p = self._load_one( f )
+            p = self._load_one(f)
             if not p:
                 break
             self[p[self.key]] = p
@@ -191,10 +191,10 @@ def main(args):
     '''
     types = {'p': DpkgParagraph, 'c': DpkgControl, 's': DpkgSourceControl}
     type_ = args[0]
-    if not type_ in types:
+    if type_ not in types:
         print("Unknown type `%s'!" % type_)
         return 1
-    file_ = open(args[1], "r" )
+    file_ = open(args[1], "r")
     data = types[type_]()
     data.load(file_)
     if len(args) > 2:

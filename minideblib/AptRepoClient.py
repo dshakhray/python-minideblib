@@ -98,7 +98,7 @@ def _get_available_pkgs(base_url, pkgcache):
 
 def _get_available_versions(package, base_url, pkgcache):
     """
-        Should return touple (base_url,package_version) with the best version found in cache.
+        Should return tuple (base_url,package_version) with the best version found in cache.
         If base_url is not specified, all repositories will be checked
     """
     cache_keys = _filter_base_urls(base_url, pkgcache)
@@ -460,7 +460,7 @@ class AptRepoClient(LoggableObject):
 
     def __get_pkgs_by_name_version(self, package, version, base_url, pkgcache):
         """
-           Should return array of packages, matched by name/vesion, from one or more base_urls
+           Should return array of packages, matched by name/version, from one or more base_urls
         """
         cache_keys = _filter_base_urls(base_url, pkgcache)
         
