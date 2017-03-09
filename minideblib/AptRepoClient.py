@@ -49,7 +49,7 @@ def _universal_urlopen(url):
                'Cache-Control': 'no-cache',
                'Accept-encoding': 'gzip'}
     request = urllib2.Request(url, None, headers)
-    usock = urllib2.urlopen(request)
+    usock = urllib2.urlopen(request, timeout=180)
     if usock.headers.get('content-encoding', None) == 'gzip' or url.endswith(".gz"):
         data = usock.read()
         data = gzip.GzipFile(fileobj=cStringIO.StringIO(data)).read()
