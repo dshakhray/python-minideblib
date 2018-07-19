@@ -279,6 +279,20 @@ class AptRepoMetadataBase(DpkgOrderedDatalist):
         para.load(in_file)
         return para
 
+    def __check_allowed_arches(self, arch):
+        """Check the architecture of package for compliance with the allowed"""
+        if arch is None:
+            return True
+        if self.allowed_arches is None or self.allowed_arches == ["all"]:
+            return True
+        arch_list = arch.split()
+        for value in arch_list:
+            if "all" in value or "any" in value:
+                return True
+            if value in self.allowed_arches:
+                return True
+        return False
+
     def load(self, inf, base_url=None):
         """Load packages meta-information to internal data structures"""
         if base_url is None:
@@ -287,12 +301,7 @@ class AptRepoMetadataBase(DpkgOrderedDatalist):
             para = self.__load_one(inf, base_url)
             if not para: 
                 break
-            
-            if 'architecture' in para and \
-                    para['architecture'] not in ["all", "any"] and \
-                    self.allowed_arches and self.allowed_arches != ["all"] and \
-                    not [arch for arch in para['architecture'].split() if
-                         arch in self.allowed_arches]:
+            if not self.__check_allowed_arches(para.get('architecture')):
                 continue
             if para[self.key] not in self:
                 self[para[self.key]] = []
